@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anime Generator Pro</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<style>
+    :root {
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
+        --bg-input: #334155;
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border: #475569;
+        --danger: #ef4444;
+        --success: #10b981;
+        --radius: 8px;
+        --h-input: 45px;
+    }
+
+    * { box-sizing: border-box; outline: none; }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        margin: 0;
+        padding: 40px 20px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    /* --- LAYOUT GRID --- */
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; /* 3 Equal Columns */
+        gap: 25px;
+        align-items: start;
+    }
+
+    @media (max-width: 1200px) { .container { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
+
+    /* --- CARDS --- */
+    .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        position: relative;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border);
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .card-header i { color: var(--primary); font-size: 1.4rem; }
+
+    /* --- INPUTS & BUTTONS --- */
+    .form-group { position: relative; }
+    
+    label {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+    }
+
+    input, select, textarea, button {
+        width: 100%;
+        border-radius: var(--radius);
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+
+    input, select, button { height: var(--h-input); }
+
+    input, select, textarea {
+        background: var(--bg-input);
+        border: 1px solid transparent;
+        color: white;
+        padding: 0 15px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--primary);
+        background: #1e293b;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    textarea { padding: 12px; min-height: 100px; resize: vertical; }
+
+    /* --- BUTTON STYLES --- */
+    button {
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    button:active { transform: translateY(1px); }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    
+    .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+    .btn-secondary:hover { background: var(--bg-input); color: white; border-color: var(--text-muted); }
+    
+    .btn-icon { width: var(--h-input); flex-shrink: 0; padding: 0; font-size: 1.2rem; }
+    
+    .btn-success { background: var(--success); color: #0f172a; }
+    .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+    .btn-danger:hover { background: var(--danger); color: white; }
+
+    /* --- FLEX UTILITIES --- */
+    .row { display: flex; gap: 12px; }
+    .col { flex: 1; }
+    .align-center { align-items: center; }
+
+    /* --- SPECIFIC COMPONENTS --- */
+    
+    /* 1. Import Bar */
+    .import-bar {
+        max-width: 1400px;
+        margin: 0 auto 30px auto;
+        background: #111827;
+        border: 1px dashed var(--border);
+        padding: 15px 20px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .import-bar input { background: transparent; border: none; height: auto; }
+    .import-bar input:focus { box-shadow: none; background: transparent; }
+
+    /* 2. Image Preview Section */
+    .cover-section {
+        display: flex;
+        gap: 15px;
+        background: rgba(0,0,0,0.2);
+        padding: 15px;
+        border-radius: var(--radius);
+        margin-bottom: 15px;
+    }
+    .preview-box {
+        width: 110px;
+        height: 160px;
+        background: #000;
+        border-radius: var(--radius);
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .preview-box img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-box i { font-size: 2rem; color: var(--text-muted); opacity: 0.3; }
+
+    /* 3. Dynamic Lists (Seasons/Episodes) */
+    .list-item {
+        background: #232d42;
+        padding: 12px;
+        border-radius: var(--radius);
+        margin-bottom: 10px;
+        border: 1px solid rgba(255,255,255,0.05);
+        animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* 4. Search Dropdown */
+    #searchResults {
+        position: absolute;
+        top: 85px; /* Adjust based on input height */
+        left: 24px;
+        right: 24px;
+        background: var(--bg-card);
+        border: 1px solid var(--primary);
+        border-radius: var(--radius);
+        z-index: 100;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        display: none;
+    }
+    .search-result-item {
+        padding: 12px;
+        display: flex;
+        gap: 12px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .search-result-item:hover { background: var(--bg-input); }
+    .search-result-item img { width: 40px; height: 60px; object-fit: cover; border-radius: 4px; }
+
+    /* 5. Status Toast */
+    #statusMsg { font-size: 0.85rem; font-weight: 600; margin-top: 5px; min-height: 20px; }
+
+    /* Labels Tag Input Style */
+    #labelsOutput {
+        font-family: monospace;
+        color: #86efac;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    
+    /* Code Output */
+    #outputCode {
+        font-family: 'Consolas', monospace;
+        font-size: 12px;
+        color: #e2e8f0;
+        background: #0f172a;
+        border: 1px solid var(--border);
+    }
+
+</style>
+</head>
+<body>
+
+<!-- IMPORT BAR -->
+<div class="import-bar">
+    <i class='bx bx-edit' style="font-size:1.5rem; color:var(--primary)"></i>
+    <div style="flex:1">
+        <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Edit Mode</div>
+        <input type="text" id="importCode" placeholder="Paste your old post HTML code here to edit...">
+    </div>
+    <button onclick="loadFromCode()" class="btn-secondary" style="width:auto; padding: 0 20px;">
+        <i class='bx bx-import'></i> Load Data
+    </button>
+</div>
+
+<div class="container">
+
+    <!-- 1. DETAILS PANEL -->
+    <div class="card">
+        <div class="card-header"><i class='bx bxs-info-circle'></i> Anime Info</div>
+        
+        <!-- Search -->
+        <div class="form-group">
+            <div class="row">
+                <input type="text" id="searchQuery" placeholder="Search Anime (e.g. Solo Leveling)" onkeydown="if(event.key==='Enter') searchAnime()">
+                <button onclick="searchAnime()" class="btn-primary btn-icon"><i class='bx bx-search'></i></button>
+            </div>
+            <div id="statusMsg"></div>
+        </div>
+        <div id="searchResults"></div>
+
+        <!-- Cover & Title -->
+        <div class="cover-section">
+            <div class="preview-box">
+                <img id="previewImg" src="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                <i class='bx bx-image' style="display:none"></i>
+            </div>
+            <div class="col" style="display:flex; flex-direction:column; gap:10px;">
+                <div>
+                    <label>English Title</label>
+                    <div class="row">
+                        <input type="text" id="animeTitle">
+                        <button class="btn-secondary btn-icon" onclick="copyTitle()"><i class='bx bx-copy'></i></button>
+                    </div>
+                </div>
+                <div>
+                    <label>Cover URL (ImgBB)</label>
+                    <input type="text" id="cover" onchange="updatePreview(this.value)" placeholder="https://...">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Japanese Title</label>
+            <input type="text" id="japanese">
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label>Aired</label>
+                <input type="text" id="aired">
+            </div>
+            <div class="col">
+                <label>Duration</label>
+                <input type="text" id="duration">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label>Episodes</label>
+                <input type="text" id="episodes_count">
+            </div>
+            <div class="col">
+                <label>Producers</label>
+                <input type="text" id="producers">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Synopsis</label>
+            <textarea id="synopsis"></textarea>
+        </div>
+
+        <!-- Hidden Fields -->
+        <input type="hidden" id="raw_score"><input type="hidden" id="raw_genres">
+        <input type="hidden" id="raw_type"><input type="hidden" id="raw_status">
+        <input type="hidden" id="raw_season"><input type="hidden" id="raw_year">
+    </div>
+
+    <!-- 2. CONTENT PANEL -->
+    <div class="card">
+        <div class="card-header"><i class='bx bxs-playlist'></i> Media Content</div>
+        
+        <!-- Seasons -->
+        <div style="margin-bottom: 20px;">
+            <div class="row align-center" style="justify-content:space-between; margin-bottom:10px;">
+                <label style="margin:0">Season Order</label>
+                <button onclick="addSeason()" class="btn-secondary" style="height:30px; font-size:12px; width:auto; padding:0 10px;">
+                    <i class='bx bx-plus'></i> Add
+                </button>
+            </div>
+            <div id="seasonContainer"></div>
+        </div>
+
+        <hr style="border:0; border-top:1px dashed var(--border); margin: 0 0 20px 0;">
+
+        <!-- Episodes -->
+        <div>
+            <div class="row align-center" style="justify-content:space-between; margin-bottom:10px;">
+                <label style="margin:0">Episode List</label>
+                <button onclick="addEpisode()" class="btn-secondary" style="height:30px; font-size:12px; width:auto; padding:0 10px;">
+                    <i class='bx bx-plus'></i> New Episode
+                </button>
+            </div>
+            <div id="episodesContainer"></div>
+        </div>
+    </div>
+
+    <!-- 3. EXPORT PANEL -->
+    <div class="card">
+        <div class="card-header"><i class='bx bxs-code-alt'></i> Export</div>
+        
+        <label>Blogger Labels</label>
+        <div class="row" style="margin-bottom:15px;">
+            <textarea id="labelsOutput" readonly style="min-height:70px;"></textarea>
+            <button onclick="copyLabels()" class="btn-success btn-icon" style="height:auto" title="Copy Labels">
+                <i class='bx bx-copy'></i>
+            </button>
+        </div>
+
+        <label>Final HTML Code</label>
+        <textarea id="outputCode" readonly style="height: 300px; margin-bottom:15px;"></textarea>
+        
+        <div class="row">
+            <button onclick="generateCode()" class="btn-primary col">
+                <i class='bx bx-cog'></i> GENERATE HTML
+            </button>
+            <button onclick="copyCode()" class="btn-secondary btn-icon" title="Copy Code">
+                <i class='bx bx-copy'></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ==========================================
+    // HARDCODED API KEY
+    // ==========================================
+    const IMGBB_API_KEY = "233077e8f7d1bed1ea030ef5b154cae1"; 
+    // ==========================================
+
+    let seasons = [];
+    let episodesList = [];
+
+    // --- SEARCH LOGIC ---
+    async function searchAnime() {
+        const query = document.getElementById('searchQuery').value;
+        const res = document.getElementById('searchResults');
+        
+        if(!query) return;
+        
+        res.style.display = 'block';
+        res.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-muted)">Searching...</div>';
+        
+        try {
+            const response = await fetch(`https://api.jikan.moe/v4/anime?q=${query}&limit=5`);
+            const data = await response.json();
+            
+            res.innerHTML = '';
+            if(!data.data || data.data.length === 0) {
+                res.innerHTML = '<div style="padding:15px; text-align:center;">No results found.</div>';
+                return;
+            }
+
+            data.data.forEach(anime => {
+                const enTitle = anime.title_english || anime.title;
+                const div = document.createElement('div');
+                div.className = 'search-result-item';
+                div.innerHTML = `
+                    <img src="${anime.images.jpg.image_url}"> 
+                    <div>
+                        <div style="font-weight:600; color:white;">${enTitle}</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">${anime.year || '?'} • ${anime.type}</div>
+                    </div>`;
+                div.onclick = () => processSelection(anime);
+                res.appendChild(div);
+            });
+        } catch (e) { res.innerHTML = '<div style="padding:10px; color:var(--danger)">API Error</div>'; }
+    }
+
+    // --- UPLOAD LOGIC ---
+    async function processSelection(anime) {
+        document.getElementById('searchResults').style.display = 'none';
+        fillData(anime);
+
+        const status = document.getElementById('statusMsg');
+        const malUrl = anime.images.jpg.large_image_url;
+
+        status.innerHTML = '<span style="color:var(--primary)">⏳ Uploading to ImgBB...</span>';
+
+        try {
+            const formData = new FormData();
+            formData.append('image', malUrl); 
+            
+            const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: 'POST',
+                body: formData
+            });
+            const result = await uploadRes.json();
+
+            if(result.success) {
+                const permanentUrl = result.data.url;
+                document.getElementById('cover').value = permanentUrl;
+                updatePreview(permanentUrl);
+                status.innerHTML = '<span style="color:var(--success)">✅ Uploaded!</span>';
+            } else {
+                throw new Error(result.error ? result.error.message : "Upload Failed");
+            }
+        } catch (e) {
+            console.error(e);
+            status.innerHTML = `<span style="color:var(--danger)">❌ Error. Using Proxy.</span>`;
+            const fallback = `https://wsrv.nl/?url=${malUrl}`;
+            document.getElementById('cover').value = fallback;
+            updatePreview(fallback);
+        }
+    }
+
+    function fillData(anime) {
+        document.getElementById('animeTitle').value = anime.title_english || anime.title;
+        document.getElementById('japanese').value = anime.title_japanese || anime.title;
+        document.getElementById('aired').value = anime.aired.string;
+        document.getElementById('duration').value = anime.duration;
+        document.getElementById('episodes_count').value = anime.episodes || '?';
+        document.getElementById('producers').value = anime.producers.map(p => p.name).join(', ');
+        document.getElementById('synopsis').value = anime.synopsis ? anime.synopsis.replace(/\n/g, '<br>') : '';
+
+        // Hidden Metadata
+        document.getElementById('raw_score').value = anime.score || '';
+        document.getElementById('raw_type').value = anime.type || '';
+        document.getElementById('raw_status').value = anime.status || '';
+        document.getElementById('raw_season').value = anime.season || '';
+        document.getElementById('raw_year').value = anime.year || '';
+        let genres = [];
+        if(anime.genres) anime.genres.forEach(g => genres.push(g.name));
+        if(anime.themes) anime.themes.forEach(t => genres.push(t.name));
+        document.getElementById('raw_genres').value = genres.join(',');
+        
+        generateLabels();
+    }
+
+    function updatePreview(url) { 
+        const img = document.getElementById('previewImg');
+        const icon = img.nextElementSibling;
+        if(url) {
+            img.src = url;
+            img.style.display = 'block';
+            icon.style.display = 'none';
+        } else {
+            img.style.display = 'none';
+            icon.style.display = 'block';
+        }
+    }
+    function copyTitle() { document.getElementById('animeTitle').select(); document.execCommand('copy'); }
+
+    // --- LABELS ---
+    function generateLabels() {
+        let tags = [];
+        const type = document.getElementById('raw_type').value;
+        const genres = document.getElementById('raw_genres').value;
+        const status = document.getElementById('raw_status').value;
+        const season = document.getElementById('raw_season').value;
+        const year = document.getElementById('raw_year').value;
+        const score = document.getElementById('raw_score').value;
+
+        if(type) { tags.push(type); if(type === 'TV') tags.push('Series'); }
+        if(genres) tags = tags.concat(genres.split(','));
+        if(score) tags.push(score);
+        if(status === 'Finished Airing') tags.push('Completed');
+        if(status === 'Currently Airing') tags.push('Ongoing');
+        if(season && year) tags.push(`${season.charAt(0).toUpperCase() + season.slice(1)} ${year}`);
+
+        if(episodesList.length > 0) tags.push(`Ep ${episodesList[episodesList.length-1].episode}`);
+        else {
+            const total = document.getElementById('episodes_count').value;
+            if(total && total !== '?') tags.push(`Ep ${total}`);
+        }
+        document.getElementById('labelsOutput').value = [...new Set(tags)].join(',');
+    }
+    function copyLabels() { document.getElementById('labelsOutput').select(); document.execCommand('copy'); }
+
+    // --- RENDER FUNCTIONS ---
+    function renderSeasons() {
+        const con = document.getElementById('seasonContainer'); con.innerHTML = '';
+        seasons.forEach((s, i) => {
+            const d = document.createElement('div'); 
+            d.className = 'list-item';
+            d.innerHTML = `
+                <div class="row" style="margin-bottom:10px;">
+                    <input type="text" value="${s.title}" placeholder="Title (e.g. Naruto)" onchange="seasons[${i}].title=this.value">
+                    <button class="btn-danger btn-icon" onclick="removeSeason(${i})"><i class='bx bx-trash'></i></button>
+                </div>
+                <input type="text" value="${s.season}" placeholder="Label (e.g. Season 1)" onchange="seasons[${i}].season=this.value">
+            `;
+            con.appendChild(d);
+        });
+    }
+    function addSeason(){ seasons.push({title:'', season:''}); renderSeasons(); }
+    function removeSeason(i){ seasons.splice(i,1); renderSeasons(); }
+
+    function renderEpisodes() {
+        const con = document.getElementById('episodesContainer'); con.innerHTML = '';
+        episodesList.forEach((ep, i) => {
+            let sHtml = '';
+            ep.servers.forEach((srv, si) => {
+                let k = Object.keys(srv).find(x => x!=='value') || 'sub';
+                sHtml += `
+                    <div class="row" style="margin-top:10px;">
+                        <select style="width:100px; flex-shrink:0;" onchange="updateSrvType(${i},${si},this.value)">
+                            <option value="sub" ${k==='sub'?'selected':''}>Sub</option>
+                            <option value="dub" ${k==='dub'?'selected':''}>Dub</option>
+                            <option value="download" ${k==='download'?'selected':''}>DL</option>
+                        </select>
+                        <input type="text" value="${srv[k]}" placeholder="Server Name" onchange="episodesList[${i}].servers[${si}].${k}=this.value">
+                        <input type="text" value="${srv.value}" placeholder="URL" onchange="episodesList[${i}].servers[${si}].value=this.value">
+                        <button class="btn-danger btn-icon" onclick="removeSrv(${i},${si})"><i class='bx bx-x'></i></button>
+                    </div>`;
+            });
+            
+            const d = document.createElement('div');
+            d.className = 'list-item';
+            d.innerHTML = `
+                <div class="row align-center" style="margin-bottom:10px;">
+                    <div style="flex:1; font-weight:700; color:white; display:flex; align-items:center; gap:5px;">
+                        <i class='bx bx-movie-play'></i> EPISODE
+                    </div>
+                    <button class="btn-danger btn-icon" style="width:30px; height:30px; font-size:1rem;" onclick="removeEp(${i})"><i class='bx bx-trash'></i></button>
+                </div>
+                <input type="text" value="${ep.episode}" placeholder="Ep Number (e.g. 01)" onchange="episodesList[${i}].episode=this.value">
+                <div style="margin-top:5px; padding-left:15px; border-left: 2px solid var(--border);">
+                    ${sHtml}
+                </div>
+                <button class="btn-secondary" style="width:100%; margin-top:10px; height:35px; font-size:12px;" onclick="addSrv(${i})">
+                    <i class='bx bx-plus'></i> Add Server Link
+                </button>
+            `;
+            con.appendChild(d);
+        });
+    }
+    function addEpisode(){ episodesList.push({episode:'', servers:[]}); renderEpisodes(); }
+    function removeEp(i){ episodesList.splice(i,1); renderEpisodes(); }
+    function addSrv(i){ episodesList[i].servers.push({sub:'Server', value:''}); renderEpisodes(); }
+    function removeSrv(i, si){ episodesList[i].servers.splice(si,1); renderEpisodes(); }
+    function updateSrvType(i, si, val){
+        const old = episodesList[i].servers[si];
+        const k = Object.keys(old).find(x => x!=='value');
+        const n = {value: old.value}; n[val] = old[k];
+        episodesList[i].servers[si] = n;
+        renderEpisodes();
+    }
+
+    // --- GENERATE & IMPORT ---
+    function generateCode() {
+        generateLabels();
+        const cover = document.getElementById('cover').value;
+        const japanese = document.getElementById('japanese').value;
+        const aired = document.getElementById('aired').value;
+        const duration = document.getElementById('duration').value;
+        const epsCount = document.getElementById('episodes_count').value;
+        const producers = document.getElementById('producers').value;
+        const synopsis = document.getElementById('synopsis').value;
+
+        const html = `<!-- [  Sinopsis  ] -->
+<div class="synopsis">
+<p>${synopsis}</p>
+</div>
+<span><a name='more'></a></span>
+
+<!-- [  Thumbnail  ] -->
+<div class="separator" style="clear: both; text-align: center;">
+<img src="${cover}" border="0" />
+</div>
+
+<!-- [  Season List  ] -->
+<div id='season' class='ani-season-body'></div>
+
+<!-- [  Post Detail Stream  ] -->
+<script>
+const config = {
+    eInfo: {
+        cover: '${cover}',
+        japanese: '${escapeQuote(japanese)}',
+        aired: '${escapeQuote(aired)}',
+        duration: '${escapeQuote(duration)}',
+        episodes: '${escapeQuote(epsCount)}',
+        producers: '${escapeQuote(producers)}',
+    }
+};
+
+const seasonList = ${JSON.stringify(seasons).replace(/"([^"]+)":/g, '$1:')};
+  
+const episodes = ${listToStr(episodesList)};
+<\/script>`;
+        document.getElementById('outputCode').value = html;
+    }
+
+    function listToStr(list) {
+        if(!list.length) return '[]';
+        let s = '[\n';
+        list.forEach(e => {
+            s += `    {\n        episode: '${e.episode}',\n        servers: [\n`;
+            e.servers.forEach(sv => {
+                let k = Object.keys(sv).find(x=>x!=='value');
+                s += `            { ${k}: '${escapeQuote(sv[k])}', value: '${escapeQuote(sv.value)}' },\n`;
+            });
+            s += `        ]\n    },\n`;
+        });
+        return s + ']';
+    }
+    function escapeQuote(s){ return s ? s.replace(/'/g, "\\'") : ''; }
+    function copyCode(){ document.getElementById('outputCode').select(); document.execCommand('copy'); }
+
+    function loadFromCode() {
+        const c = document.getElementById('importCode').value;
+        if(!c) return alert('Please paste code first.');
+        try {
+            const conf = new Function(`return ${c.match(/const config = ({[\s\S]*?});/)[1]}`)();
+            if(conf.eInfo) {
+                document.getElementById('cover').value = conf.eInfo.cover;
+                updatePreview(conf.eInfo.cover);
+                document.getElementById('japanese').value = conf.eInfo.japanese;
+                document.getElementById('aired').value = conf.eInfo.aired;
+                document.getElementById('duration').value = conf.eInfo.duration;
+                document.getElementById('episodes_count').value = conf.eInfo.episodes;
+                document.getElementById('producers').value = conf.eInfo.producers;
+            }
+            const sMatch = c.match(/const seasonList = (\[[\s\S]*?\]);/);
+            if(sMatch) { seasons = new Function(`return ${sMatch[1]}`)(); renderSeasons(); }
+            const eMatch = c.match(/const episodes = (\[[\s\S]*?\]);/);
+            if(eMatch) { episodesList = new Function(`return ${eMatch[1]}`)(); renderEpisodes(); }
+            const synMatch = c.match(/<div class="synopsis">\s*<p>([\s\S]*?)<\/p>\s*<\/div>/);
+            if(synMatch) document.getElementById('synopsis').value = synMatch[1];
+        } catch(e){ alert('Error parsing code.'); }
+    }
+</script>
+</body>
+</html>
